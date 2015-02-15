@@ -4,11 +4,13 @@ import (
 	"os"
 	"path"
 	"flag"
+	"fmt"
 
 	"github.com/mattn/go-shellwords"
 
 	"./u"
 	"./nodeinfo"
+	"./meta"
 )
 
 var conf = map[string]interface{} {
@@ -20,6 +22,7 @@ var conf = map[string]interface{} {
 	// in NODEVER_WRAPPER env var, not the command line
 	"verbose": flag.Int("v", 0, "verbose level"),
 	"config": flag.String("config", ".nodever.json", "debug"),
+	"version": flag.Bool("V", false, "version info"),
 }
 
 func parse_debug_env() (err error) {
@@ -35,6 +38,10 @@ func parse_debug_env() (err error) {
 func main() {
 	u.Conf = conf
 	parse_debug_env()
+	if *conf["version"].(*bool) {
+		fmt.Println(meta.Version)
+		os.Exit(0)
+	}
 
 	var dir string
 	var err error
