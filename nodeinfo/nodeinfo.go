@@ -3,7 +3,6 @@ package nodeinfo
 import (
 	"fmt"
 	"os"
-	"path"
 	"strings"
 	"encoding/json"
 	"regexp"
@@ -13,7 +12,7 @@ import (
 )
 
 type Finder interface {
-	Dirname() (string, error)
+	Dirname() (*NodeInfo, error)
 }
 
 
@@ -29,7 +28,7 @@ type DataVar struct {
 	DataFile
 }
 
-func (df *DataFile) Dirname() (dir string, err error) {
+func (df *DataFile) Dirname() (ni *NodeInfo, err error) {
 	const sep = string(os.PathSeparator)
 
 	pwd, _ := os.Getwd()
@@ -37,7 +36,6 @@ func (df *DataFile) Dirname() (dir string, err error) {
 
 	for idx := len(arr)-1; idx >= 0; idx-- {
 		cur := strings.Join(append(arr[0:idx+1], df.Name), sep)
-//		fmt.Printf("%v\n", cur)
 
 		fd, err := os.Open(cur)
 		if err != nil {
@@ -46,30 +44,28 @@ func (df *DataFile) Dirname() (dir string, err error) {
 		}
 		defer fd.Close()
 
-		json := json_parse(fd, &cur)
-		if dir = node_path(json); dir != "" { break }
+		if ni = json_parse(fd, &cur); ni != nil { break }
 	}
 
-	if dir == "" { err = df.dirname_failure() }
+	if ni == nil { err = df.dirname_failure() }
 	return
 }
 
-func (dv *DataVar) Dirname() (dir string, err error) {
+func (dv *DataVar) Dirname() (ni *NodeInfo, err error) {
 	env := strings.NewReader(os.Getenv(dv.Name))
-	json := json_parse(env, &dv.Name)
-	if dir = node_path(json); dir == "" {
+	if ni = json_parse(env, &dv.Name); ni == nil {
 		err = dv.dirname_failure()
 	}
 	return
 }
 
-type nodeInfo struct {
+type NodeInfo struct {
 	Dir string
 	Def string
 }
 
-func json_parse(reader io.Reader, src *string) *nodeInfo {
-	var nodeinfo nodeInfo
+func json_parse(reader io.Reader, src *string) *NodeInfo {
+	var nodeinfo NodeInfo
 
 	if err := json.NewDecoder(reader).Decode(&nodeinfo); err != nil {
 		u.Warnx(*src + ": " + err.Error())
@@ -83,18 +79,11 @@ func json_parse(reader io.Reader, src *string) *nodeInfo {
 	return &nodeinfo
 }
 
-func json_validate(json *nodeInfo) bool {
+func json_validate(json *NodeInfo) bool {
 	arr := []string{json.Dir, json.Def}
 	for _,str := range arr {
 		if m, _ := regexp.MatchString("^\\s*$", str); m { return false }
 	}
 
 	return true
-}
-
-func node_path(json *nodeInfo) string {
-	if json == nil { return "" }
-	dir := path.Join(json.Dir, json.Def)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {	return "" }
-	return dir
 }

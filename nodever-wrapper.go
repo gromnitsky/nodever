@@ -64,16 +64,16 @@ func main() {
 		os.Exit(0)
 	}
 
-	var dir string
+	var ni *nodeinfo.NodeInfo
 	var err error
 	variants := []nodeinfo.Finder {
 		&nodeinfo.DataVar{*&nodeinfo.DataFile{conf["config_var"].(string)}},
 		&nodeinfo.DataFile{*conf["config"].(*string)},
 	}
-	for _,data := range variants {
-		if dir, err = data.Dirname(); err == nil {
-			u.Veputs(1, "FOUND: %s\n", dir)
-			run(path.Join(dir, "bin", conf["wrapper"].(string)), os.Args[1:])
+	for idx,data := range variants {
+		if ni, err = data.Dirname(); err == nil {
+			u.Veputs(1, "FOUND/%d: %s\n", idx, ni.Def)
+			run(path.Join(ni.Dir, ni.Def, "bin", conf["wrapper"].(string)), os.Args[1:])
 			break
 		} else {
 			u.Warnx("%s", err)
