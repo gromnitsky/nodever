@@ -2,6 +2,8 @@ package main
 
 import (
 	"os"
+	"os/exec"
+	"syscall"
 	"path"
 	"flag"
 	"fmt"
@@ -34,6 +36,23 @@ func parse_debug_env() (err error) {
 	return
 }
 
+func run(program string, args []string) int {
+	cmd := exec.Command(program, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		if cmd.ProcessState != nil {
+			// exit w/ captured exit status
+			os.Exit(cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus())
+		} else {
+			// fork error
+			u.Errx(65, "%s", err)
+		}
+	}
+	return 0
+}
 
 func main() {
 	u.Conf = conf
@@ -51,15 +70,15 @@ func main() {
 	}
 	for _,data := range variants {
 		if dir, err = data.Dirname(); err == nil {
-			u.Veputs(1, "FOUND: %s\n",
-				path.Join(dir, "bin", conf["wrapper"].(string)))
+			u.Veputs(1, "FOUND: %s\n", dir)
+			run(path.Join(dir, "bin", conf["wrapper"].(string)), os.Args[1:])
 			break
 		} else {
 			u.Warnx("%s", err)
 		}
 	}
 
-	if dir == "" {
-		u.Errx(1, "NOOOOOOOO!")
-	}
+	u.Errx(66, "cannot find node; run\n\n  $ %s='-v 1' %s\n\nfor more info; " +
+		"for help see %s",
+		conf["wrapper_env"], conf["wrapper"], meta.Website)
 }
