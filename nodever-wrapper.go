@@ -36,7 +36,7 @@ func parse_debug_env() (err error) {
 	return
 }
 
-func run(program string, args []string) int {
+func run(program string, args []string) {
 	cmd := exec.Command(program, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -52,7 +52,8 @@ func run(program string, args []string) int {
 			u.Errx(65, "%s", err)
 		}
 	}
-	return 0
+
+	os.Exit(cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus())
 }
 
 func main() {
