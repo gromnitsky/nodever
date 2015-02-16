@@ -42,6 +42,7 @@ func run(program string, args []string) int {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
+	u.Veputs(1, "RUN: %s %s\n", program, args)
 	if err := cmd.Run(); err != nil {
 		if cmd.ProcessState != nil {
 			// exit w/ captured exit status
