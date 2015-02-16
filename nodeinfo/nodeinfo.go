@@ -12,7 +12,7 @@ import (
 )
 
 type Finder interface {
-	Dirname() (*NodeInfo, error)
+	Dirname() (string, *NodeInfo, error)
 }
 
 
@@ -28,7 +28,7 @@ type DataVar struct {
 	DataFile
 }
 
-func (df *DataFile) Dirname() (ni *NodeInfo, err error) {
+func (df *DataFile) Dirname() (source string, ni *NodeInfo, err error) {
 	const sep = string(os.PathSeparator)
 
 	pwd, _ := os.Getwd()
@@ -44,14 +44,18 @@ func (df *DataFile) Dirname() (ni *NodeInfo, err error) {
 		}
 		defer fd.Close()
 
-		if ni = json_parse(fd, &cur); ni != nil { break }
+		if ni = json_parse(fd, &cur); ni != nil {
+			source = cur
+			break
+		}
 	}
 
 	if ni == nil { err = df.dirname_failure() }
 	return
 }
 
-func (dv *DataVar) Dirname() (ni *NodeInfo, err error) {
+func (dv *DataVar) Dirname() (source string, ni *NodeInfo, err error) {
+	source = dv.Name + " env var"
 	env := strings.NewReader(os.Getenv(dv.Name))
 	if ni = json_parse(env, &dv.Name); ni == nil {
 		err = dv.dirname_failure()

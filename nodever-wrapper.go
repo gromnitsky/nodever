@@ -71,7 +71,7 @@ func main() {
 		&nodeinfo.DataFile{*conf["config"].(*string)},
 	}
 	for idx,data := range variants {
-		if ni, err = data.Dirname(); err == nil {
+		if _, ni, err = data.Dirname(); err == nil {
 			u.Veputs(1, "FOUND/%d: %s\n", idx, ni.Def)
 			run(path.Join(ni.Dir, ni.Def, "bin", conf["wrapper"].(string)), os.Args[1:])
 			break
