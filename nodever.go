@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strings"
+	"io"
 
 	"./u"
 	"./nodeinfo"
@@ -68,7 +69,7 @@ func config_write(filename string, ni *nodeinfo.NodeInfo) {
 }
 
 func mode_list(filter string) {
-	var list []string
+	var list []NodeVersion
 	var err error
 	var source string
 	if source, _, list, err = node_versions(); err != nil {
@@ -76,20 +77,34 @@ func mode_list(filter string) {
 	}
 
 	fmt.Printf("(%s)\n", source)
-	for _, file := range node_versions_filter(list, filter) {
-		fmt.Println(file)
+	for _, val := range node_versions_filter(list, filter) {
+		print_node_version(os.Stdout, val)
 	}
 }
 
+func print_node_version(writer io.Writer, nv NodeVersion) {
+	// where is ternary operator? why golang, why?
+	mark := " "
+	if nv.is_cur { mark = "*"}
+	fmt.Fprintf(writer, "%s %s\n", mark, nv.name)
+}
+
+type NodeVersion struct {
+	name string
+	is_cur bool
+}
+
 // get dir from config, return all node subdirs from it
-func node_versions() (source string, ni *nodeinfo.NodeInfo, list []string, err error) {
+func node_versions() (source string, ni *nodeinfo.NodeInfo, list []NodeVersion, err error) {
 	df := &nodeinfo.DataFile{*conf["config"].(*string)}
 	if source, ni, err = df.Dirname(); err != nil { return }
 
 	files, err := ioutil.ReadDir(ni.Dir)
 	for _, file := range files {
 		if is_node_dir(file.Name()) {
-			list = append(list, file.Name())
+			is_cur := false
+			if ni.Def == file.Name() { is_cur = true }
+			list = append(list, NodeVersion{file.Name(), is_cur})
 		}
 	}
 
@@ -97,10 +112,10 @@ func node_versions() (source string, ni *nodeinfo.NodeInfo, list []string, err e
 }
 
 // well, in ruby it would have been much prettier
-func node_versions_filter(list []string, str string) (r []string) {
+func node_versions_filter(list []NodeVersion, str string) (r []NodeVersion) {
 	if str == "" { return list }
 	for _, val := range list {
-		if strings.Contains(val, str) {
+		if strings.Contains(val.name, str) {
 			r = append(r, val)
 		}
 	}
@@ -114,7 +129,7 @@ func is_node_dir(name string) bool {
 
 func mode_use(filter string) {
 	var ni *nodeinfo.NodeInfo
-	var list []string
+	var list []NodeVersion
 	var err error
 	var source string
 	if source, ni, list, err = node_versions(); err != nil {
@@ -124,12 +139,12 @@ func mode_use(filter string) {
 	if len(ver) > 1 {
 		u.Errx(0, "the query must resolve in 1 entry, you got:\n")
 		for _,val := range ver {
-			fmt.Fprintf(os.Stderr, "%s\n", val)
+			print_node_version(os.Stderr, val)
 		}
 		os.Exit(1)
 	}
 
-	ni.Def = ver[0]
+	ni.Def = ver[0].name
 	config_write(source, ni)
 }
 
