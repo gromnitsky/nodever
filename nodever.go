@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strings"
-	"io"
 
 	"./u"
 	"./nodeinfo"
@@ -78,20 +77,20 @@ func mode_list() {
 
 	fmt.Printf("(%s)\n", source)
 	for _, val := range list {
-		print_node_version(os.Stdout, val)
+		fmt.Println(&val)
 	}
-}
-
-func print_node_version(writer io.Writer, nv NodeVersion) {
-	// where is ternary operator? why golang, why?
-	mark := " "
-	if nv.is_cur { mark = "*"}
-	fmt.Fprintf(writer, "%s %s\n", mark, nv.name)
 }
 
 type NodeVersion struct {
 	name string
 	is_cur bool
+}
+
+func (nv *NodeVersion) String() string {
+	// where is ternary operator? why golang, why?
+	mark := " "
+	if nv.is_cur { mark = "*"}
+	return mark + " " + nv.name
 }
 
 // get dir from config, return all node subdirs from it
@@ -139,7 +138,7 @@ func mode_use(filter string) {
 	if len(ver) > 1 {
 		u.Errx(0, "the query must resolve in 1 entry, you got:\n")
 		for _,val := range ver {
-			print_node_version(os.Stderr, val)
+			fmt.Fprintln(os.Stderr, &val)
 		}
 		os.Exit(1)
 	}
