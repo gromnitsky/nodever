@@ -68,7 +68,7 @@ func config_write(filename string, ni *nodeinfo.NodeInfo) {
 	}
 }
 
-func mode_list(filter string) {
+func mode_list() {
 	var list []NodeVersion
 	var err error
 	var source string
@@ -77,7 +77,7 @@ func mode_list(filter string) {
 	}
 
 	fmt.Printf("(%s)\n", source)
-	for _, val := range node_versions_filter(list, filter) {
+	for _, val := range list {
 		print_node_version(os.Stdout, val)
 	}
 }
@@ -167,7 +167,7 @@ func main() {
 	case "init":
 		mode_init()
 	case "list":
-		mode_list(flag.Arg(1))
+		mode_list()
 	case "use":
 		mode_use(flag.Arg(1))
 	case "":					// yep
