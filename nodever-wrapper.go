@@ -43,14 +43,9 @@ func run(program string, args []string) {
 	cmd.Stderr = os.Stderr
 
 	u.Veputs(1, "RUN: %s %s\n", program, args)
-	if err := cmd.Run(); err != nil {
-		if cmd.ProcessState != nil {
-			// exit w/ captured exit status
-			os.Exit(cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus())
-		} else {
-			// fork error
-			u.Errx(65, "%s", err)
-		}
+	if err := cmd.Run(); err != nil && cmd.ProcessState == nil {
+		// fork error
+		u.Errx(65, "%s", err)
 	}
 
 	os.Exit(cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus())
