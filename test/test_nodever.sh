@@ -27,6 +27,7 @@ test_first_run()
 {
 	rm -f $config
 	assert_match_exec "$nodever" "nodever error: cannot find node"
+	assertEquals 66 $?
 }
 
 test_env_var()
@@ -58,7 +59,7 @@ test_mode_list_fail()
 test_mode_list()
 {
 	local r=`$nodever list`
-	assertEquals `echo "$r" | wc -l` 3
+	assertEquals `echo "$r" | wc -l` 4
 	assertEquals "`echo "$r" | grep 'node-0.12.0'`" '* node-0.12.0'
 	assertEquals "`echo "$r" | grep 'iojs-1.2.3'`" '  iojs-1.2.3'
 }
@@ -73,6 +74,7 @@ test_mode_use_fail()
 {
 	assert_match_exec "$nodever use" "the query must resolve in 1 entry"
 	assert_match_exec "$nodever use o" "the query must resolve in 1 entry"
+	assertEquals 1 $?
 }
 
 test_mode_use()
