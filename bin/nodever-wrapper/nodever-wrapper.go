@@ -10,9 +10,9 @@ import (
 
 	"github.com/mattn/go-shellwords"
 
-	"./u"
-	"./nodeinfo"
-	"./meta"
+	"github.com/gromnitsky/nodever/u"
+	"github.com/gromnitsky/nodever/nodeinfo"
+	"github.com/gromnitsky/nodever/meta"
 )
 
 var conf = map[string]interface{} {

@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"io"
 
-	"../u"
+	"github.com/gromnitsky/nodever/u"
 )
 
 type Finder interface {

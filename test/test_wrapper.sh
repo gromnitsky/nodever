@@ -6,7 +6,7 @@ node="./node"
 
 oneTimeSetUp()
 {
-	go build ../node.go
+	go build ../bin/node/node.go
 }
 
 oneTimeTearDown()

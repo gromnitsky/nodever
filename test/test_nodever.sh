@@ -8,7 +8,7 @@ cwd=`pwd`
 
 oneTimeSetUp()
 {
-	go build ../nodever.go
+	go build ../bin/nodever/nodever.go
 }
 
 oneTimeTearDown()
