@@ -22,7 +22,7 @@ var conf = map[string]interface{} {
 	"config_var": "NODEVER",
 	"verbose": flag.Int("v", 0, "verbose level"),
 	"config": flag.String("config", ".nodever.json", "debug"),
-	"useronly": flag.Bool("u", false, "start from $USER dir"),
+	"useronly": flag.Bool("u", false, "start from $HOME"),
 	"version": flag.Bool("V", false, "version info"),
 }
 
@@ -151,6 +151,17 @@ func mode_use(filter string) {
 
 func main() {
 	u.Conf = conf
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [options] [mode [arg]]:\n", conf["name"])
+		fmt.Fprintf(os.Stderr, "Modes:\n" +
+			"  init       create/overwrite a config in the current dir or $HOME (see -u)\n" +
+			"  list       list node/iojs installations\n" +
+			"  use VER    select node version (write it to the config)\n" +
+			"  (no mode)  show currrent node version & its source\n" +
+			"\n")
+		flag.PrintDefaults()
+	}
+
 	flag.Parse()
 	if *conf["version"].(*bool) {
 		fmt.Println(meta.Version)
@@ -159,6 +170,7 @@ func main() {
 
 	if *conf["useronly"].(*bool) {
 		u.Veputs(1, "cd $HOME\n")
+		// TODO: check errors
 		usr, _ := user.Current()
 		os.Chdir(usr.HomeDir)
 	}
