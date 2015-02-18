@@ -70,6 +70,13 @@ test_mode_use_fail_no_config()
 	assert_match_exec "$nodever use" "nodever error: cannot read config file"
 }
 
+test_mode_use_invalid_settings()
+{
+	echo "{\"dir\":\"$cwd\",\"def\":\"node-99.99.99-broken\"}" > $config
+	assert_match_exec "$nodever use 0.10" "$cwd doesn't have any node installations"
+	assertEquals 1 $?
+}
+
 test_mode_use_fail()
 {
 	assert_match_exec "$nodever use" "the query must resolve in 1 entry"

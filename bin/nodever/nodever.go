@@ -142,6 +142,7 @@ func mode_use(filter string) {
 		}
 		os.Exit(1)
 	}
+	if len(ver) == 0 { u.Errx(1, "%s doesn't have any node installations", ni.Dir) }
 
 	ni.Def = ver[0].name
 	config_write(source, ni)
