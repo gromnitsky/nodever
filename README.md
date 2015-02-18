@@ -49,14 +49,13 @@ This implies that you have a working Go installation & know what
 
 ## Setup
 
-In `$GOPATH/bin` you'll find 4 new executables:
+In `$GOPATH/bin` you'll find 3 new executables:
 
 	nodever
 	npm
 	node
-	nodever-wrapper
 
-Ignore `nodever-wrapper`. Type:
+Run nodever for the first time:
 
 	$ nodever
 	nodever error: cannot find node; rerun w/ '-v 1' argument; \
