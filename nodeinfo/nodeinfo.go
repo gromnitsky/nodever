@@ -3,10 +3,12 @@ package nodeinfo
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"strings"
 	"encoding/json"
 	"regexp"
 	"io"
+	"path"
 
 	"github.com/gromnitsky/nodever/u"
 )
@@ -32,11 +34,17 @@ func (df *DataFile) Dirname() (source string, ni *NodeInfo, err error) {
 	const sep = string(os.PathSeparator)
 
 	pwd, _ := os.Getwd()
-	arr := strings.Split(pwd, sep)
+	usr, _ := user.Current()
+	dirs := strings.Split(pwd, sep)
+	dirs[0] = sep
 
-	for idx := len(arr)-1; idx >= 0; idx-- {
-		cur := strings.Join(append(arr[0:idx+1], df.Name), sep)
+	var configs []string
+	for idx := len(dirs)-1; idx >= 0; idx-- {
+		configs = append(configs, path.Join(append(dirs[0:idx+1], df.Name)...))
+	}
+	configs = append(configs, path.Join(usr.HomeDir, df.Name))
 
+	for _, cur := range configs {
 		fd, err := os.Open(cur)
 		if err != nil {
 			u.Veputs(1, "%s\n", err.Error())
