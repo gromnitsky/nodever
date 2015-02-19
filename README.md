@@ -126,6 +126,40 @@ for that. For example:
 	$ ./my-script.sh
 	v1.1.0
 
+## NPM
+
+One annoyance you'll get is a weird path for globally installed
+packages.
+
+Suppose we set 0.10 as a default, chose `/opt/s` as the node umbrella
+directory & we expect global packages to be installed in `/opt/lib`. But
+
+	# npm ls --depth=0 -g
+	/opt/s/node-v0.10.35-linux-x86/lib
+	└── npm@1.4.28
+
+Huh? It turns out, npm uses a prefix for modules path that depends on
+`process.execPath`, which in our case is
+`/opt/s/node-v0.10.35-linux-x86/bin/node`. So that
+
+	# node
+	> path.dirname(path.dirname(process.execPath))
+	'/opt/s/node-v0.10.35-linux-x86'
+
+To fix it we may create a global npm config
+
+	# cat /etc/npmrc
+	prefix = /opt
+
+& force npm to read it by exporting `npm_config_globalconfig` env
+variable.
+
+	# export npm_config_globalconfig=/etc/npmrc
+	# npm ls --depth=0 -g
+	/opt/lib
+	├── ...
+	└── ...
+
 ## Bugs
 
 * Tested on Fedora 21 only.
