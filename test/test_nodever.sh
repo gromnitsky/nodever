@@ -91,4 +91,16 @@ test_mode_use()
 				 "`cat $config`"
 }
 
+test_mode_exec_fail()
+{
+	assert_match_exec "$nodever exec" "Usage: nodever exec VER CMD"
+	assertEquals 1 $?
+}
+
+test_mode_exec()
+{
+	assert_match_exec "$nodever exec iojs node" "1.2.3"
+	assertEquals 0 $?
+}
+
 . /usr/share/shunit2/shunit2

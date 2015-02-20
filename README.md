@@ -13,7 +13,7 @@ A minimalistic node version manager.
 ## Requirements
 
 * Linux
-* Go 1.4.1
+* Go 1.4.2
 
 ## Overview
 
@@ -126,6 +126,18 @@ for that. For example:
 	$ ./my-script.sh
 	v1.1.0
 
+## Hints
+
+You can run an arbitrary command in a subshell with the desired node
+version:
+
+	$ nodever exec 0.10 coffee
+	coffee> process.version
+	'v0.10.36'
+
+	$ nodever exec iojs npm -v
+	2.5.1
+
 ## NPM
 
 One annoyance you'll get is a weird path for globally installed
@@ -165,12 +177,6 @@ variable.
 * Tested on Fedora 21 only.
 * Probably won't work under Windows.
 
-## TODO
-
-* Add `nodever exec 0.12 node foo.js` as a shortcut for setting
-  `NODEVER`.
-
 ## License
 
 MIT.
-

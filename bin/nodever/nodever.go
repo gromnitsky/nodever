@@ -151,15 +151,34 @@ func select_version(filter string) (source string, ni *nodeinfo.NodeInfo) {
 	return
 }
 
+func mode_exec(args []string) {
+	if len(args) < 2 {
+		u.Errx(1, "Usage: %s exec VER CMD [args]", conf["name"])
+	}
+
+	filter := args[0]
+	cmd := args[1]
+	var cmd_args []string
+	if len(args) > 2 { cmd_args = args[2:] }
+
+	_, ni := select_version(filter)
+	ev, _ := json.Marshal(ni)
+	os.Setenv(conf["config_var"].(string), string(ev))
+	u.Run(cmd, cmd_args)
+}
+
 func main() {
 	u.Conf = conf
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options] [mode [arg]]:\n", conf["name"])
+		fmt.Fprintf(os.Stderr, "Help:  %s\n", meta.Website)
 		fmt.Fprintf(os.Stderr, "Modes:\n" +
-			"  init       create/overwrite a config in the current dir or $HOME (see -u)\n" +
-			"  list       list node/iojs installations\n" +
-			"  use VER    select node version (write it to the config)\n" +
-			"  (no mode)  show currrent node version & its source\n" +
+			"  init           create/overwrite a config in the current dir or $HOME (see -u)\n" +
+			"  list           list node/iojs installations\n" +
+			"  use VER        select node version & write it to the config\n" +
+			"  exec VER CMD   run a command w/ a selected node version\n" +
+			"                 (don't write anything to the config)\n" +
+			"  (no mode)      show currrent node version & its source\n" +
 			"\n")
 		flag.PrintDefaults()
 	}
@@ -184,6 +203,8 @@ func main() {
 		mode_list()
 	case "use":
 		mode_use(flag.Arg(1))
+	case "exec":
+		mode_exec(flag.Args()[1:])
 	case "":					// yep
 		mode_info()
 	default:
