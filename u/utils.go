@@ -4,6 +4,8 @@ package u
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"syscall"
 )
 
 var Conf map[string]interface{}
@@ -25,4 +27,19 @@ func Errx(exit_code int, format string, args ...interface{}) {
 	if exit_code > 0 {
 		os.Exit(exit_code)
 	}
+}
+
+func Run(program string, args []string) {
+	cmd := exec.Command(program, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	Veputs(1, "RUN: %s %s\n", program, args)
+	if err := cmd.Run(); err != nil && cmd.ProcessState == nil {
+		// fork error
+		Errx(65, "%s", err)
+	}
+
+	os.Exit(cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus())
 }

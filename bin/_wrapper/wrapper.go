@@ -2,8 +2,6 @@ package main
 
 import (
 	"os"
-	"os/exec"
-	"syscall"
 	"path"
 	"flag"
 	"fmt"
@@ -36,21 +34,6 @@ func parse_debug_env() (err error) {
 	return
 }
 
-func run(program string, args []string) {
-	cmd := exec.Command(program, args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	u.Veputs(1, "RUN: %s %s\n", program, args)
-	if err := cmd.Run(); err != nil && cmd.ProcessState == nil {
-		// fork error
-		u.Errx(65, "%s", err)
-	}
-
-	os.Exit(cmd.ProcessState.Sys().(syscall.WaitStatus).ExitStatus())
-}
-
 func main() {
 	u.Conf = conf
 	parse_debug_env()
@@ -68,7 +51,7 @@ func main() {
 	for idx,data := range variants {
 		if _, ni, err = data.Dirname(); err == nil {
 			u.Veputs(1, "FOUND/%d: %s\n", idx, ni.Def)
-			run(path.Join(ni.Dir, ni.Def, "bin", conf["wrapper"].(string)), os.Args[1:])
+			u.Run(path.Join(ni.Dir, ni.Def, "bin", conf["wrapper"].(string)), os.Args[1:])
 			break
 		} else {
 			u.Warnx("%s", err)
