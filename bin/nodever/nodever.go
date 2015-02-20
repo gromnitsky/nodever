@@ -72,7 +72,7 @@ func mode_list() {
 	var err error
 	var source string
 	if source, _, list, err = node_versions(); err != nil {
-		u.Errx(1, "cannot read config file, run `%s init`", conf["name"])
+		u.Errx(1, "cannot read config file, run `%s init`: %s", conf["name"], err)
 	}
 
 	fmt.Printf("(%s)\n", source)
@@ -132,7 +132,7 @@ func mode_use(filter string) {
 	var err error
 	var source string
 	if source, ni, list, err = node_versions(); err != nil {
-		u.Errx(1, "cannot read config file, run `%s init`", conf["name"])
+		u.Errx(1, "cannot read config file, run `%s init`: %s", conf["name"], err)
 	}
 	ver := node_versions_filter(list, filter)
 	if len(ver) > 1 {
@@ -142,7 +142,7 @@ func mode_use(filter string) {
 		}
 		os.Exit(1)
 	}
-	if len(ver) == 0 { u.Errx(1, "%s doesn't have any node installations", ni.Dir) }
+	if len(ver) == 0 { u.Errx(1, "`%s` doesn't match any node installations in %s", filter, ni.Dir) }
 
 	ni.Def = ver[0].name
 	config_write(source, ni)

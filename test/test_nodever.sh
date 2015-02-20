@@ -73,7 +73,7 @@ test_mode_use_fail_no_config()
 test_mode_use_invalid_settings()
 {
 	echo "{\"dir\":\"$cwd\",\"def\":\"node-99.99.99-broken\"}" > $config
-	assert_match_exec "$nodever use 0.10" "$cwd doesn't have any node installations"
+	assert_match_exec "$nodever use 0.10" '`0.10` doesn'\''t match any node'
 	assertEquals 1 $?
 }
 
