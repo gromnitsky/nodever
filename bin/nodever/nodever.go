@@ -127,10 +127,13 @@ func is_node_dir(name string) bool {
 }
 
 func mode_use(filter string) {
-	var ni *nodeinfo.NodeInfo
+	source, ni := select_version(filter)
+	config_write(source, ni)
+}
+
+func select_version(filter string) (source string, ni *nodeinfo.NodeInfo) {
 	var list []NodeVersion
 	var err error
-	var source string
 	if source, ni, list, err = node_versions(); err != nil {
 		u.Errx(1, "cannot read config file, run `%s init`: %s", conf["name"], err)
 	}
@@ -145,9 +148,8 @@ func mode_use(filter string) {
 	if len(ver) == 0 { u.Errx(1, "`%s` doesn't match any node installations in %s", filter, ni.Dir) }
 
 	ni.Def = ver[0].name
-	config_write(source, ni)
+	return
 }
-
 
 func main() {
 	u.Conf = conf
