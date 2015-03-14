@@ -5,6 +5,7 @@ import (
 	"path"
 	"flag"
 	"fmt"
+	"encoding/json"
 
 	"github.com/mattn/go-shellwords"
 
@@ -34,6 +35,15 @@ func parse_debug_env() (err error) {
 	return
 }
 
+func set_nodever(ni *nodeinfo.NodeInfo) {
+	if os.Getenv(conf["config_var"].(string)) != "" { return }
+
+	b, _ := json.Marshal(ni)
+	u.Veputs(1, "set %s=%s for possible subshells\n",
+		conf["config_var"].(string), string(b))
+	os.Setenv(conf["config_var"].(string), string(b))
+}
+
 func main() {
 	u.Conf = conf
 	parse_debug_env()
@@ -51,6 +61,7 @@ func main() {
 	for idx,data := range variants {
 		if _, ni, err = data.Dirname(); err == nil {
 			u.Veputs(1, "FOUND/%d: %s\n", idx, ni.Def)
+			set_nodever(ni)
 			u.Run(path.Join(ni.Dir, ni.Def, "bin", conf["wrapper"].(string)), os.Args[1:])
 			break
 		} else {
