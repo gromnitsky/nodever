@@ -8,12 +8,12 @@ A minimalistic node version manager.
 * Wrappers around `node` & `npm` commands.
 * Doesn't poison bash or any other shell.
 * Works w/ any node/iojs versions.
-* Written in Go.
+* Über fast.
 
 ## Requirements
 
 * Linux
-* Go 1.4.2
+* Go 1.17.1
 
 ## Overview
 
@@ -26,34 +26,40 @@ under 1 directory, say `/opt/s`. For example:
 	/opt/s/node-v0.10.35-linux-x86
 	/opt/s/node-v0.12.0-linux-x86
 
-After installing nodever, you'll get 2 _wrappers_ for node/npm
+After installing nodever, you'll get _wrappers_ for node/npm/npx/corepack
 binaries. Those wrappers check 2 places for instructions:
 
 1. `NODEVER` env variable
 2. `.nodever.json` file
 
 The search for the `.nodever.json` begins form the current directory
-(_not_ the directory of .js file), then switches to its parent & all way
-down to the root. This allows us to have `~/.nodever.json` file w/ a
+(_not_ the directory of a .js file), then switches to its parent & all
+the way down to /. This allows us to have `~/.nodever.json` file w/ a
 default settings for a particular user & a completely different
-configuration for `$HOME/some/project`.
+configuration for `~/some/project`.
 
 ## Installation
 
-	$ go get github.com/gromnitsky/nodever/...
+~~~
+$ git clone https://github.com/gromnitsky/nodever
+$ cd nodever
+$ go install ./...
+~~~
 
-(Yes, those `...` are required.)
-
-This implies that you have a working Go installation & know what
-`GOPATH` is.
+Yes, `./...` is required verbatim. You may also remove the cloned dir
+afterwards.
 
 ## Setup
 
-In `$GOPATH/bin` you'll find 3 new executables:
+In `~/go/bin` you'll find 5 new executables:
 
-	nodever
-	npm
-	node
+~~~
+corepack
+node
+nodever
+npm
+npx
+~~~
 
 Run nodever for the first time:
 
@@ -103,13 +109,13 @@ Finally, the most interesting part:
 	$ node -v
 	v0.12.0
 
-What was that? The `node` wrapper (`$GOPATH/bin/node`) found
+What was that? The `node` wrapper (`~/go/node`) found
 `$HOME/.nodever.json` file & executed a
 `/opt/s/node-v0.12.0-linux-x86/bin/node` binary w/ `-v` option. The
 wrapper passed all CL options directly to the 'wrapped' command. It
 connected its stdin/stdout/stderr to the corresponding streams of the
 wrapped binary & it returned the exit code from the wrapped binary, so
-everything worked just as if you did run the real node executable
+everything worked just as if you run the real node executable
 directly.
 
 ## Shell scripts
@@ -174,7 +180,7 @@ variable.
 
 ## Bugs
 
-* Tested on Fedora 21 only.
+* Tested on Fedora only.
 * Probably won't work under Windows.
 
 ## License
